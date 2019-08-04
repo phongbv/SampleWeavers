@@ -1,6 +1,8 @@
-﻿using System;
+﻿using Example.Fody;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using static System.Console;
@@ -10,7 +12,24 @@ namespace Example.Test
     {
         static void Main(string[] args)
         {
-            WriteLine(Add(2, 4,3));
+            MethodDecorator.InitFun = (s, e, arg) =>
+            {
+                if (e == null)
+                {
+                    return;
+                }
+                WriteLine($"On Init {e?.Name} with params ");
+                int count = 0;
+                foreach (var item in arg)
+                {
+                    WriteLine($"Param {count++}: {item}");
+                }
+            };
+            MethodDecorator.OnEntryFuc = () =>
+            {
+                WriteLine($"On Entry");
+            };
+            Print("Sample message");
             ReadLine();
         }
 
@@ -18,5 +37,25 @@ namespace Example.Test
         {
             return a + b;
         }
+
+        public static void Print(string msg)
+        {
+            WriteLine(msg);
+        }
+
+        public void Test()
+        {
+            try
+            {
+                Print("");
+            }
+            catch (Exception)
+            {
+                MethodDecorator.Instance.OnExit();
+                throw;
+            }
+        }
     }
+
+
 }
